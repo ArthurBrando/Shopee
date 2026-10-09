@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Regedit</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: transparent; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Container Principal - Painel Branco Sólido */
+        .regedit-panel {
+            width: 380px;
+            background-color: #ffffff;
+            border: 2px solid #ff6600;
+            border-radius: 6px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Laranja */
+        .header {
+            background-color: #ff6600;
+            color: #ffffff;
+            padding: 8px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-left svg {
+            width: 14px;
+            height: 14px;
+            fill: #ffffff;
+            transition: transform 0.3s;
+        }
+
+        .regedit-panel.minimized .header-left svg {
+            transform: rotate(-90deg);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Corpo do Painel */
+        .panel-body {
+            display: flex;
+            height: auto;
+            min-height: 220px; 
+            max-height: 500px; 
+            transition: max-height 0.3s ease;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+        .regedit-panel.minimized .panel-body {
+            max-height: 0;
+            min-height: 0;
+        }
+
+        /* Sidebar (Abas) */
+        .sidebar {
+            width: 60px;
+            background-color: #f9f9f9;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .tab-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #ff6600; /* Ícones laranja */
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: #ff6600;
+        }
+
+        .tab-btn.active svg {
+            fill: #ffffff;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background-color: #e0e0e0;
+        }
+
+        /* Área de Conteúdo */
+        .content {
+            flex: 1;
+            padding: 12px 15px 15px 15px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; 
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .row.half {
+            justify-content: space-between;
+        }
+
+        .row.half > * {
+            flex: 1;
+        }
+
+        /* Checkbox Customizado */
+        .custom-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #000;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .custom-check input {
+            display: none;
+        }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            background-color: #fff;
+            border: 2px solid #000;
+            border-radius: 3px;
+            display: inline-block;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .custom-check input:checked + .checkmark {
+            background-color: #ff6600;
+            border-color: #ff6600;
+        }
+
+        .custom-check input:checked + .checkmark::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 1px;
+            width: 4px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* Radio Customizado */
+        .custom-radio {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #000;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .custom-radio input {
+            display: none;
+        }
+
+        .radiomark {
+            width: 18px;
+            height: 18px;
+            background-color: #fff;
+            border: 2px solid #000;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .custom-radio input:checked + .radiomark {
+            border-color: #ff6600;
+        }
+
+        .custom-radio input:checked + .radiomark::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            width: 6px;
+            height: 6px;
+            background-color: #ff6600;
+            border-radius: 50%;
+        }
+
+        .fake-input {
+            background-color: #fff;
+            border: 2px solid #000;
+            color: #000;
+            padding: 6px 10px;
+            font-size: 13px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .fake-btn {
+            background-color: #ff6600;
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        /* Select Limpo e Profissional */
+        .custom-select {
+            width: 100%;
+            padding: 6px 25px 6px 10px;
+            border: 2px solid #000;
+            background-color: #fff;
+            color: #000;
+            font-size: 13px;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff6600'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            border-radius: 4px;
+        }
+
+        .custom-select option {
+            background-color: #fff;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .label-text {
+            color: #000;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="regedit-panel" id="regeditPanel">
+        <div class="header" id="panelHeader">
+            <div class="header-left">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5z"/>
+                </svg>
+                <span>PAINEL REGEDIT SHOPEE 1.0.0</span>
+            </div>
+            <button class="close-btn" onclick="closePanel(event)">X</button>
+        </div>
+
+        <div class="panel-body">
+            <div class="sidebar">
+                <!-- Aba 1: Aimbot (Alvo) -->
+                <button class="tab-btn active" onclick="openTab(event, 'aimbot')">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
+                        <circle cx="12" cy="12" r="2"/>
+                    </svg>
+                </button>
+                <!-- Aba 2: Visual (Pistola) -->
+                <button class="tab-btn" onclick="openTab(event, 'visual')">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 8h18v4h-3v2h-6l-1 7h-4l1-7H3V8z"/>
+                    </svg>
+                </button>
+                <!-- Aba 3: Boost (Raio) -->
+                <button class="tab-btn" onclick="openTab(event, 'boost')">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+                    </svg>
+                </button>
+                <!-- Aba 4: Extra (Controle) -->
+                <button class="tab-btn" onclick="openTab(event, 'extra')">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21.58 16.09l-1.09-7.66C20.21 6.46 18.52 5 16.53 5H7.47C5.48 5 3.79 6.46 3.51 8.43l-1.09 7.66C2.2 17.63 3.39 19 4.94 19c.68 0 1.32-.27 1.8-.75L9 16h6l2.25 2.25c.48.48 1.13.75 1.8.75 1.56 0 2.75-1.37 2.53-2.91zM11 11H9v2H8v-2H6v-1h2V8h1v2h2v1zm4-1c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2 3c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="content">
+                <div id="aimbot" class="tab-content active">
+                    <div class="row half">
+                        <label class="custom-check">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span> Ativar Aimbot
+                        </label>
+                        <label class="custom-check">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span> Sim Drag
+                        </label>
+                    </div>
+                    
+                    <div class="row half">
+                        <select class="custom-select">
+                            <option>Cabeça</option>
+                            <option>Peito</option>
+                        </select>
+                        <select class="custom-select">
+                            <option>Puxada</option>
+                            <option>Suave</option>
+                            <option>Rápida</option>
+                            <option>Instantânea</option>
+                        </select>
+                    </div>
+
+                    <div class="label-text">Tipo de Aimbot:</div>
+                    
+                    <div class="row half">
+                        <label class="custom-radio">
+                            <input type="radio" name="aim">
+                            <span class="radiomark"></span> Ao Atirar
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="aim" checked>
+                            <span class="radiomark"></span> Ao Olhar
+                        </label>
+                    </div>
+                </div>
+
+                <div id="visual" class="tab-content">
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span> No Recoil
+                        </label>
+                    </div>
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox">
+                            <span class="checkmark"></span> Precision
+                        </label>
+                    </div>
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span> Aimdrag
+                        </label>
+                    </div>
+                </div>
+
+                <div id="boost" class="tab-content">
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span> RAM Boost
+                        </label>
+                    </div>
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span> Melhorador de Sensibilidade
+                        </label>
+                    </div>
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span> Otimizar Rede (Ping)
+                        </label>
+                    </div>
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox">
+                            <span class="checkmark"></span> FPS Unlock
+                        </label>
+                    </div>
+                </div>
+
+                <div id="extra" class="tab-content">
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span> Auto Headshot
+                        </label>
+                    </div>
+                    <div class="row">
+                        <label class="custom-check">
+                            <input type="checkbox">
+                            <span class="checkmark"></span> Fast Reload
+                        </label>
+                    </div>
+                    <div class="row">
+                        <div class="label-text" style="color: #ff6600;">Status: INDETECTÁVEL</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            let i, tabContent, tabBtns;
+            
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+                tabContent[i].classList.remove("active");
+            }
+            
+            tabBtns = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).style.display = "flex";
+            document.getElementById(tabName).classList.add("active");
+            
+            evt.currentTarget.classList.add("active");
+        }
+
+        document.getElementById("panelHeader").addEventListener("click", function(evt) {
+            if (evt.target.classList.contains("close-btn")) return;
+            
+            const panel = document.getElementById("regeditPanel");
+            panel.classList.toggle("minimized");
+        });
+
+        function closePanel(evt) {
+            evt.stopPropagation();
+            const panel = document.getElementById("regeditPanel");
+            panel.style.display = "none";
+        }
+    </script>
+</body>
+</html>
